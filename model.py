@@ -117,7 +117,7 @@ class Trainer():
 	    model.save(self.model_name)
 
 
-	    ### print the keys contained in the history object
+		### print the keys contained in the history object
 		print(history_object.history.keys())
 		### plot the training and validation loss for each epoch
 		plt.plot(history_object.history['loss'])
