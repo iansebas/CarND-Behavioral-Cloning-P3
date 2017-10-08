@@ -41,7 +41,7 @@ class Trainer():
 	        print("CUDA ENABLED: {}".format(tf.test.is_gpu_available(cuda_only=True)))
 	    else:
 	        print('\nGPU NOT FOUND, USING CPU')
-	        self.batch_size = 1
+	        self.batch_size = 4
 	        print("Batch Size: {}".format(self.batch_size))
 
 
@@ -111,12 +111,24 @@ class Trainer():
 
 	    self.model.compile(loss='mse', optimizer='adam')
 	    print("\nStarting Training")
-	    self.model.fit_generator(train_generator, steps_per_epoch=int(train_ix.size/self.batch_size), validation_data=validation_generator, validation_steps=int(test_ix.size/self.batch_size), epochs=self.epochs)
-
-
+	    history_object = self.model.fit_generator(train_generator, steps_per_epoch=int(train_ix.size/self.batch_size), validation_data=validation_generator, validation_steps=int(test_ix.size/self.batch_size), epochs=self.epochs)
 
 	    print("\nSaving model at {}".format(self.model_name))
 	    model.save(self.model_name)
+
+
+	    ### print the keys contained in the history object
+		print(history_object.history.keys())
+		### plot the training and validation loss for each epoch
+		plt.plot(history_object.history['loss'])
+		plt.plot(history_object.history['val_loss'])
+		plt.title('model mean squared error loss')
+		plt.ylabel('mean squared error loss')
+		plt.xlabel('epoch')
+		plt.legend(['training set', 'validation set'], loc='upper right')
+		plt.savefig('figures/loss.png')
+
+
 
 
 if __name__ == '__main__':
