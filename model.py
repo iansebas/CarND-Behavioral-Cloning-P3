@@ -114,7 +114,7 @@ class Trainer():
 		history_object = self.model.fit_generator(train_generator, steps_per_epoch=int(train_ix.size/self.batch_size), validation_data=validation_generator, validation_steps=int(test_ix.size/self.batch_size), epochs=self.epochs)
 
 		print("\nSaving model at {}".format(self.model_name))
-		model.save(self.model_name)
+		self.model.save(self.model_name)
 
 
 		### print the keys contained in the history object
