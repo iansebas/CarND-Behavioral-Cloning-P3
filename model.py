@@ -90,13 +90,14 @@ class Trainer():
 		model.add(keras.layers.core.Flatten())
 		model.add(keras.layers.core.Dense(100, activation='relu'))
 		model.add(keras.layers.core.Dropout(0.5))
-		model.add(keras.layers.core.Dense(50, activation='relu'))
+		model.add(keras.layers.core.Dense(128, activation='relu'))
 		model.add(keras.layers.core.Dropout(0.5))
-		model.add(keras.layers.core.Dense(10, activation='relu'))
+		model.add(keras.layers.core.Dense(64, activation='relu'))
 		model.add(keras.layers.core.Dense(1, activation='softmax'))
 
 		print("\nModel Defined")
 		self.model = model
+		self.model.summary()
 
 
 	def train(self):
@@ -118,7 +119,7 @@ class Trainer():
 
 
 		### print the keys contained in the history object
-		print(history_object.history.keys())
+		#print(history_object.history.keys())
 		### plot the training and validation loss for each epoch
 		plt.plot(history_object.history['loss'])
 		plt.plot(history_object.history['val_loss'])
