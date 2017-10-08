@@ -100,21 +100,21 @@ class Trainer():
 
 
 	def train(self):
-	    """ Trains classifier in batches """
-	    dir_path = os.path.dirname(os.path.realpath(__file__))
-	    data_ix = pd.read_csv(os.path.join(dir_path,self.train_file_path), names=['center','left','right','steering','throttle','brake','speed'], header=0)
+		""" Trains classifier in batches """
+		dir_path = os.path.dirname(os.path.realpath(__file__))
+		data_ix = pd.read_csv(os.path.join(dir_path,self.train_file_path), names=['center','left','right','steering','throttle','brake','speed'], header=0)
 
-	    train_ix, test_ix = train_test_split(data_ix, test_size=0.2)
+		train_ix, test_ix = train_test_split(data_ix, test_size=0.2)
 
-	    train_generator = self.batch_generator(train_ix)
-	    validation_generator = self.batch_generator(test_ix)
+		train_generator = self.batch_generator(train_ix)
+		validation_generator = self.batch_generator(test_ix)
 
-	    self.model.compile(loss='mse', optimizer='adam')
-	    print("\nStarting Training")
-	    history_object = self.model.fit_generator(train_generator, steps_per_epoch=int(train_ix.size/self.batch_size), validation_data=validation_generator, validation_steps=int(test_ix.size/self.batch_size), epochs=self.epochs)
+		self.model.compile(loss='mse', optimizer='adam')
+		print("\nStarting Training")
+		history_object = self.model.fit_generator(train_generator, steps_per_epoch=int(train_ix.size/self.batch_size), validation_data=validation_generator, validation_steps=int(test_ix.size/self.batch_size), epochs=self.epochs)
 
-	    print("\nSaving model at {}".format(self.model_name))
-	    model.save(self.model_name)
+		print("\nSaving model at {}".format(self.model_name))
+		model.save(self.model_name)
 
 
 		### print the keys contained in the history object
