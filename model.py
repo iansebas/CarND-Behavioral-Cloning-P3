@@ -89,9 +89,9 @@ class Trainer():
 		model.add(keras.layers.convolutional.Convolution2D(64, (3, 3), activation='relu'))
 		model.add(keras.layers.core.Flatten())
 		model.add(keras.layers.core.Dense(100, activation='relu'))
-		#model.add(keras.layers.core.Dropout(0.5))
+		model.add(keras.layers.core.Dropout(0.5))
 		model.add(keras.layers.core.Dense(50, activation='relu'))
-		#model.add(keras.layers.core.Dropout(0.5))
+		model.add(keras.layers.core.Dropout(0.5))
 		model.add(keras.layers.core.Dense(10, activation='relu'))
 		model.add(keras.layers.core.Dense(1, activation='softmax'))
 
