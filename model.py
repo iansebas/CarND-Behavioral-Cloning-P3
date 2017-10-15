@@ -28,7 +28,9 @@ class Trainer():
 		self.batch_size = None
 		self.train_file_path = 'driving_log.csv'
 		self.model_name = 'model.h5'
-		self.epochs = 5
+		self.epochs = 10
+
+		self.data_folder = "data"
 
 		self.computing_setting()
 		self.define_model()
@@ -54,7 +56,9 @@ class Trainer():
 		    temp_y = []
 		    for index, row in batch.iterrows():
 
-		        center_image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), str(row["center"]))
+		    	pos = str(row["center"]).rfind('/')
+		    	filename = str(row["center"])[pos+1:]
+		        center_image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), self.data_folder, "IMG", filename)
 		        center_image = cv2.imread(center_image_path)
 	        	center_image = cv2.cvtColor(center_image, cv2.COLOR_BGR2RGB)
 
@@ -103,7 +107,7 @@ class Trainer():
 	def train(self):
 		""" Trains classifier in batches """
 		dir_path = os.path.dirname(os.path.realpath(__file__))
-		data_ix = pd.read_csv(os.path.join(dir_path,self.train_file_path), names=['center','left','right','steering','throttle','brake','speed'], header=0)
+		data_ix = pd.read_csv(os.path.join(dir_path,self.data_folder,self.train_file_path), names=['center','left','right','steering','throttle','brake','speed'], header=0)
 
 		train_ix, test_ix = train_test_split(data_ix, test_size=0.2)
 
