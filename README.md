@@ -14,9 +14,9 @@ The goals / steps of this project are the following:
 
 ### Write-up
 
-###Files Submitted & Code Quality
+### Files Submitted & Code Quality
 
-####1. Submission includes all required files and can be used to run the simulator in autonomous mode
+#### 1. Submission includes all required files and can be used to run the simulator in autonomous mode
 
 My project includes the following files:
 * model.py containing the script to create and train the model
@@ -24,38 +24,38 @@ My project includes the following files:
 * model.h5 containing a trained convolutional neural network 
 * README.md summarizing the results
 
-####2. Submission includes functional code
+#### 2. Submission includes functional code
 Using the Udacity provided simulator and my drive.py file, the car can be driven autonomously around the track by executing 
 ```sh
 python drive.py model.h5
 ```
 
-####3. Submission code is usable and readable
+#### 3. Submission code is usable and readable
 
 The model.py file contains the code for training and saving the convolution neural network. The file shows the pipeline I used for training and validating the model, and it contains comments to explain how the code works.
 
-###Model Architecture and Training Strategy
+### Model Architecture and Training Strategy
 
-####1. An appropriate model architecture has been employed
+#### 1. An appropriate model architecture has been employed
 
 My model is defined in line 114. The resulting model is inspired by NVIDI's https://arxiv.org/abs/1604.07316'. ELU are chosen as non-linearilies. A Lambda layer is used to normalize the input, and the a cropping layer. (5x5) amd (3x3) filters are used. 
 
 
-####2. Attempts to reduce overfitting in the model
+#### 2. Attempts to reduce overfitting in the model
 
 Both Batch Normalization, and Dropout were used throughout the model. 
 
-####3. Model parameter tuning
+#### 3. Model parameter tuning
 
 The model used an adam optimizer (with a default learning rate of 0.001 in Keras). (line 164)
 
-####4. Appropriate training data
+#### 4. Appropriate training data
 
 A clockwise loop and counterclockwise loop were added to the provided Udacity dataset. The average velocity of the added loops was 30 mph.
 
-###Model Architecture and Training Strategy
+### Model Architecture and Training Strategy
 
-####1. Solution Design Approach
+#### 1. Solution Design Approach
 In line 51, I present my main strategy. The center images are flipped and steering angles inverted to expand the data. Also, I introduce the left and right images while training by adding a correction of 0.2 to the steering angle as follows:
 ```py
 	def batch_generator(self,ix, training=True):
@@ -122,7 +122,7 @@ In line 51, I present my main strategy. The center images are flipped and steeri
 		    yield batch_x, batch_y
 
 ```
-####2. Final Model Architecture
+#### 2. Final Model Architecture
 
 The final model is as follows:
 ```
@@ -197,7 +197,7 @@ _________________________________________________________________
 
 ```
 
-####3. Creation of the Training Set & Training Process
+#### 3. Creation of the Training Set & Training Process
 
 The training set has images in center, left, and right:
 ![alt text](./figures/center.jpg "center")
@@ -207,9 +207,9 @@ The training set has images in center, left, and right:
 The loss in training is higher because of the dropout:
 ![alt text](./figures/loss.png "loss")
 
-###Simulation
+### Simulation
 
-####1.The car navigates correctly on test data
+#### 1.The car navigates correctly on test data
 
 The results are shown in video.mp4
 
