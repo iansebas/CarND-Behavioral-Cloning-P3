@@ -1,33 +1,8 @@
 # Behaviorial Cloning Project
 
-[![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
-
-Overview
+### Overview
 ---
-This repository contains starting files for the Behavioral Cloning Project.
-
-In this project, you will use what you've learned about deep neural networks and convolutional neural networks to clone driving behavior. You will train, validate and test a model using Keras. The model will output a steering angle to an autonomous vehicle.
-
-We have provided a simulator where you can steer a car around a track for data collection. You'll use image data and steering angles to train a neural network and then use this model to drive the car autonomously around the track.
-
-We also want you to create a detailed writeup of the project. Check out the [writeup template](https://github.com/udacity/CarND-Behavioral-Cloning-P3/blob/master/writeup_template.md) for this project and use it as a starting point for creating your own writeup. The writeup can be either a markdown file or a pdf document.
-
-To meet specifications, the project will require submitting five files: 
-* model.py (script used to create and train the model)
-* drive.py (script to drive the car - feel free to modify this file)
-* model.h5 (a trained Keras model)
-* a report writeup file (either markdown or pdf)
-* video.mp4 (a video recording of your vehicle driving autonomously around the track for at least one full lap)
-
-This README file describes how to output the video in the "Details About Files In This Directory" section.
-
-Creating a Great Writeup
----
-A great writeup should include the [rubric points](https://review.udacity.com/#!/rubrics/432/view) as well as your description of how you addressed each point.  You should include a detailed description of the code used (with line-number references and code snippets where necessary), and links to other supporting documents or external references.  You should include images in your writeup to demonstrate how your code works with examples.  
-
-All that said, please be concise!  We're not looking for you to write a book here, just a brief description of how you passed each rubric point, and references to the relevant code :). 
-
-You're not required to use markdown for your writeup.  If you use another method please just submit a pdf of your writeup.
+This repository contains files for the Behavioral Cloning Project.
 
 The Project
 ---
@@ -37,82 +12,205 @@ The goals / steps of this project are the following:
 * Use the model to drive the vehicle autonomously around the first track in the simulator. The vehicle should remain on the road for an entire loop around the track.
 * Summarize the results with a written report
 
-### Dependencies
-This lab requires:
+### Write-up
 
-* [CarND Term1 Starter Kit](https://github.com/udacity/CarND-Term1-Starter-Kit)
+###Files Submitted & Code Quality
 
-The lab enviroment can be created with CarND Term1 Starter Kit. Click [here](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) for the details.
+####1. Submission includes all required files and can be used to run the simulator in autonomous mode
 
-The following resources can be found in this github repository:
-* drive.py
-* video.py
-* writeup_template.md
+My project includes the following files:
+* model.py containing the script to create and train the model
+* drive.py for driving the car in autonomous mode
+* model.h5 containing a trained convolutional neural network 
+* README.md summarizing the results
 
-The simulator can be downloaded from the classroom. In the classroom, we have also provided sample data that you can optionally use to help train your model.
-
-## Details About Files In This Directory
-
-### `drive.py`
-
-Usage of `drive.py` requires you have saved the trained model as an h5 file, i.e. `model.h5`. See the [Keras documentation](https://keras.io/getting-started/faq/#how-can-i-save-a-keras-model) for how to create this file using the following command:
-```sh
-model.save(filepath)
-```
-
-Once the model has been saved, it can be used with drive.py using this command:
-
+####2. Submission includes functional code
+Using the Udacity provided simulator and my drive.py file, the car can be driven autonomously around the track by executing 
 ```sh
 python drive.py model.h5
 ```
 
-The above command will load the trained model and use the model to make predictions on individual images in real-time and send the predicted angle back to the server via a websocket connection.
+####3. Submission code is usable and readable
 
-Note: There is known local system's setting issue with replacing "," with "." when using drive.py. When this happens it can make predicted steering values clipped to max/min values. If this occurs, a known fix for this is to add "export LANG=en_US.utf8" to the bashrc file.
+The model.py file contains the code for training and saving the convolution neural network. The file shows the pipeline I used for training and validating the model, and it contains comments to explain how the code works.
 
-#### Saving a video of the autonomous agent
+###Model Architecture and Training Strategy
 
-```sh
-python drive.py model.h5 run1
+####1. An appropriate model architecture has been employed
+
+My model is defined in line 114. The resulting model is inspired by NVIDI's https://arxiv.org/abs/1604.07316'. ELU are chosen as non-linearilies. A Lambda layer is used to normalize the input, and the a cropping layer. (5x5) amd (3x3) filters are used. 
+
+
+####2. Attempts to reduce overfitting in the model
+
+Both Batch Normalization, and Dropout were used throughout the model. 
+
+####3. Model parameter tuning
+
+The model used an adam optimizer (with a default learning rate of 0.001 in Keras). (line 164)
+
+####4. Appropriate training data
+
+A clockwise loop and counterclockwise loop were added to the provided Udacity dataset. The average velocity of the added loops was 30 mph.
+
+###Model Architecture and Training Strategy
+
+####1. Solution Design Approach
+In line 51, I present my main strategy. The center images are flipped and steering angles inverted to expand the data. Also, I introduce the left and right images while training by adding a correction of 0.2 to the steering angle as follows:
+```py
+	def batch_generator(self,ix, training=True):
+	    """Create batch with random samples and return appropriate format"""
+	    while True:
+		    batch = ix.sample(n = self.batch_size)
+		    #print(batch)
+		    temp_x = []
+		    temp_y = []
+		    for index, row in batch.iterrows():
+
+		    	pos = str(row["center"]).rfind('/')
+		    	filename = str(row["center"])[pos+1:]
+		        center_image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), self.data_folder, "IMG", filename)
+		        center_image = cv2.imread(center_image_path)
+	        	center_image = cv2.cvtColor(center_image, cv2.COLOR_BGR2RGB)
+
+	        	steering = float(row["steering"])
+
+		        temp_x.append(center_image)
+		        temp_y.append(steering)
+
+		        if (training):
+					# Flip Center  Image 
+					temp_x.append(cv2.flip(center_image,1))
+					temp_y.append(steering*-1.0)
+
+					# Left  Image Process
+					pos = str(row["left"]).rfind('/')
+					filename = str(row["left"])[pos+1:]
+					left_image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), self.data_folder, "IMG", filename)
+					left_image = cv2.imread(left_image_path)
+					left_image = cv2.cvtColor(left_image, cv2.COLOR_BGR2RGB)
+					left_steering = steering + 0.2
+					temp_x.append(left_image)
+					temp_y.append(left_steering)
+					temp_x.append(cv2.flip(left_image,1))
+					temp_y.append(left_steering*-1.0)
+
+					# Right  Image Process
+					pos = str(row["right"]).rfind('/')
+					filename = str(row["right"])[pos+1:]
+					right_image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), self.data_folder, "IMG", filename)
+					right_image = cv2.imread(right_image_path)
+					right_image = cv2.cvtColor(right_image, cv2.COLOR_BGR2RGB)
+					right_steering = steering - 0.2
+					temp_x.append(right_image)
+					temp_y.append(right_steering)
+					temp_x.append(cv2.flip(right_image,1))
+					temp_y.append(right_steering*-1.0)
+
+					del left_image, right_image
+
+		        del center_image
+		        gc.collect()
+		    batch_x = np.stack(temp_x)
+		    batch_y = np.stack(temp_y)
+		    
+		    del batch, temp_x, temp_y
+		    gc.collect()
+
+		    batch_x, batch_y = shuffle(batch_x, batch_y)
+
+		    yield batch_x, batch_y
+
+```
+####2. Final Model Architecture
+
+The final model is as follows:
+```
+Model Defined
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+lambda_1 (Lambda)            (None, 160, 320, 3)       0         
+_________________________________________________________________
+cropping2d_1 (Cropping2D)    (None, 65, 320, 3)        0         
+_________________________________________________________________
+conv2d_1 (Conv2D)            (None, 31, 158, 24)       1824      
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 31, 158, 24)       96        
+_________________________________________________________________
+elu_1 (ELU)                  (None, 31, 158, 24)       0         
+_________________________________________________________________
+conv2d_2 (Conv2D)            (None, 14, 77, 36)        21636     
+_________________________________________________________________
+batch_normalization_2 (Batch (None, 14, 77, 36)        144       
+_________________________________________________________________
+elu_2 (ELU)                  (None, 14, 77, 36)        0         
+_________________________________________________________________
+conv2d_3 (Conv2D)            (None, 5, 37, 48)         43248     
+_________________________________________________________________
+batch_normalization_3 (Batch (None, 5, 37, 48)         192       
+_________________________________________________________________
+elu_3 (ELU)                  (None, 5, 37, 48)         0         
+_________________________________________________________________
+conv2d_4 (Conv2D)            (None, 3, 35, 64)         27712     
+_________________________________________________________________
+batch_normalization_4 (Batch (None, 3, 35, 64)         256       
+_________________________________________________________________
+elu_4 (ELU)                  (None, 3, 35, 64)         0         
+_________________________________________________________________
+conv2d_5 (Conv2D)            (None, 1, 33, 64)         36928     
+_________________________________________________________________
+batch_normalization_5 (Batch (None, 1, 33, 64)         256       
+_________________________________________________________________
+elu_5 (ELU)                  (None, 1, 33, 64)         0         
+_________________________________________________________________
+flatten_1 (Flatten)          (None, 2112)              0         
+_________________________________________________________________
+dense_1 (Dense)              (None, 100)               211300    
+_________________________________________________________________
+batch_normalization_6 (Batch (None, 100)               400       
+_________________________________________________________________
+elu_6 (ELU)                  (None, 100)               0         
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 100)               0         
+_________________________________________________________________
+dense_2 (Dense)              (None, 128)               12928     
+_________________________________________________________________
+batch_normalization_7 (Batch (None, 128)               512       
+_________________________________________________________________
+elu_7 (ELU)                  (None, 128)               0         
+_________________________________________________________________
+dropout_2 (Dropout)          (None, 128)               0         
+_________________________________________________________________
+dense_3 (Dense)              (None, 64)                8256      
+_________________________________________________________________
+batch_normalization_8 (Batch (None, 64)                256       
+_________________________________________________________________
+elu_8 (ELU)                  (None, 64)                0         
+_________________________________________________________________
+dense_4 (Dense)              (None, 1)                 65        
+=================================================================
+Total params: 366,009
+Trainable params: 364,953
+Non-trainable params: 1,056
+_________________________________________________________________
+
 ```
 
-The fourth argument, `run1`, is the directory in which to save the images seen by the agent. If the directory already exists, it'll be overwritten.
+####3. Creation of the Training Set & Training Process
 
-```sh
-ls run1
+The training set has images in center, left, and right:
+![alt text](./figures/center.jpg "center")
+![alt text](./figures/left.jpg "left")
+![alt text](./figures/right.jpg "right")
 
-[2017-01-09 16:10:23 EST]  12KiB 2017_01_09_21_10_23_424.jpg
-[2017-01-09 16:10:23 EST]  12KiB 2017_01_09_21_10_23_451.jpg
-[2017-01-09 16:10:23 EST]  12KiB 2017_01_09_21_10_23_477.jpg
-[2017-01-09 16:10:23 EST]  12KiB 2017_01_09_21_10_23_528.jpg
-[2017-01-09 16:10:23 EST]  12KiB 2017_01_09_21_10_23_573.jpg
-[2017-01-09 16:10:23 EST]  12KiB 2017_01_09_21_10_23_618.jpg
-[2017-01-09 16:10:23 EST]  12KiB 2017_01_09_21_10_23_697.jpg
-[2017-01-09 16:10:23 EST]  12KiB 2017_01_09_21_10_23_723.jpg
-[2017-01-09 16:10:23 EST]  12KiB 2017_01_09_21_10_23_749.jpg
-[2017-01-09 16:10:23 EST]  12KiB 2017_01_09_21_10_23_817.jpg
-...
-```
+The loss in training is higher because of the dropout:
+![alt text](./figures/loss.png "loss")
 
-The image file name is a timestamp of when the image was seen. This information is used by `video.py` to create a chronological video of the agent driving.
+###Simulation
 
-### `video.py`
+####1.The car navigates correctly on test data
 
-```sh
-python video.py run1
-```
+The results are shown in video.mp4
 
-Creates a video based on images found in the `run1` directory. The name of the video will be the name of the directory followed by `'.mp4'`, so, in this case the video will be `run1.mp4`.
 
-Optionally, one can specify the FPS (frames per second) of the video:
-
-```sh
-python video.py run1 --fps 48
-```
-
-Will run the video at 48 FPS. The default FPS is 60.
-
-#### Why create a video
-
-1. It's been noted the simulator might perform differently based on the hardware. So if your model drives succesfully on your machine it might not on another machine (your reviewer). Saving a video is a solid backup in case this happens.
-2. You could slightly alter the code in `drive.py` and/or `video.py` to create a video of what your model sees after the image is processed (may be helpful for debugging).
