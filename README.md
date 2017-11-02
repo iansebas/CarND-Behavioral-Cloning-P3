@@ -211,6 +211,6 @@ The loss in training is higher because of the dropout:
 
 #### 1.The car navigates correctly on test data
 
-The results are shown in video.mp4
+The results are shown in [video.mp4](./video.mp4)
 
 
